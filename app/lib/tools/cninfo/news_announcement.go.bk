@@ -1,0 +1,109 @@
+package cninfo
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/jiorry/keredat/app/lib/tools/wget"
+	"github.com/jiorry/keredat/app/lib/util"
+	"github.com/kere/gos/db"
+)
+
+// FetchGdzj 巨潮资讯信息纰漏
+// http://www.cninfo.com.cn/cninfo-new/disclosure/szse
+func FetchCninfoAnnouncement(page int) (*jsonGgzjData, error) {
+	fmt.Println("Fetch Cninfo Announcement ", page)
+	// http://www.cninfo.com.cn/cninfo-new/announcement/query
+	formt := `http://data.eastmoney.com/DataCenter_V3/gdzjc.ashx?pagesize=%d&page=%d&js=var%20IXUCMxPL&param=&sortRule=-1&sortType=BDJZ&tabid=all&code=&name=&rt=%d`
+	pageLimit := 100
+
+	body, err := wget.GetBody(fmt.Sprintf(formt, page, pageLimit, time.Now().Unix()))
+	if err != nil {
+		return nil, err
+	}
+	// var IXUCMxPL={pages:385,data:["000757,浩物股份,11.26,-0.18,天津天物国际贸易发展有限公司,增持,96.58,0.31,二级市场,297.401,0.66,297.401,0.95,2015-11-27,2015-11-27,2015-12-01,0.2143",
+	src := body[13:]
+	src = bytes.Replace(src, []byte("pages:"), []byte(`"pages":`), 1)
+	src = bytes.Replace(src, []byte(",data:"), []byte(`,"data":`), 1)
+
+	v := &jsonGgzjData{}
+	err = json.Unmarshal(src, v)
+	if err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+type cninfoAnnouncement struct {
+	db.BaseVO
+	Code          string  `json:"code"`
+	Date          string  `json:"date"`
+	CreatedAt     string  `json:"created_at"`
+	Person        string  `json:"person"`
+	Price         float64 `json:"price"`           //
+	Amount        float64 `json:"amount"`          //
+	Total         float64 `json:"total"`           //
+	Remain        int64   `json:"remain"`          //
+	Proportion    float64 `json:"proportion"`      // 变动比例
+	Reason        string  `json:"reason"`          // 变动原因
+	PersonRel     string  `json:"person_rel"`      // 相关董监高人员姓名
+	PersonRelType string  `json:"person_rel_type"` // 变动人与董监高的关系
+	Job           string  `json:"job"`             // 职务
+}
+
+type jsonGgzjData struct {
+	Pages int      `json:"pages"`
+	Data  []string `json:"data"`
+}
+
+func (s *jsonGgzjData) Parse() []*cninfoAnnouncement {
+	dataset := make([]*cninfoAnnouncement, 0)
+
+	query := db.NewQueryBuilder("stock")
+	upd := db.NewUpdateBuilder("stock")
+
+	var tmp []string
+	var arr []string
+	var row db.DataRow
+	var ggzj *cninfoAnnouncement
+
+	for _, item := range s.Data {
+		arr = strings.Split(item, ",")
+		tmp = strings.Split(strings.ToLower(arr[15]), ".")
+		row, _ = query.Where("code=? and ctype=?", tmp[0], tmp[1]).QueryOne()
+
+		if row.Empty() {
+			continue
+		}
+		upd.Where("id=?", row.GetInt64("id")).Update(db.DataRow{"name": arr[9]})
+		// "0.00444,谢飞鹏,002420,谢杏思,A股,2015-11-16,-17800,  0   ,9.44,  毅昌股份,父母,YCGF,竞价交易,-168032,董事,002420.SZ"
+		//     0      1     2      3    4      5         6     7   8        9    10   11    12       13   14    15
+		// "0.00025,邓伦明,002539,邓伦德,A股,2015-11-17,-2500,   0,  14.65,  新都化工,兄弟姐妹,XDHG,竞价交易,-36625,监事,002539.SZ",
+		// "0.00012,马东杰,002771,马东伟,A股,2015-11-16,  100,   0,  129.12, 真视通,兄弟姐妹,ZST,竞价交易,12912,监事,002771.SZ",
+		// "0.00012,马东杰,002771,马东伟,A股,2015-11-16, -100,   0,  129.8,  真视通,兄弟姐妹,ZST,竞价交易,-12980,监事,002771.SZ",
+		// "0.00628,郝先进,002690,郝先进,A股,2015-11-16,42430,23581180,30.26,美亚光电,本人,MYGD,竞价交易,1283931.8,董事、高管,002690.SZ"
+
+		ggzj = &cninfoAnnouncement{
+			StockID:       row.GetInt64("id"),
+			Date:          arr[5],
+			Person:        arr[3],
+			Price:         util.ParseMoney(arr[8]),
+			Amount:        util.ParseMoney(arr[6]),
+			Total:         util.ParseMoney(arr[13]),
+			Remain:        int64(util.ParseMoney(arr[7])),
+			Proportion:    util.ParseMoney(arr[0]),
+			Reason:        arr[12],
+			PersonRel:     arr[1],
+			PersonRelType: arr[10],
+			Job:           arr[14],
+		}
+
+		dataset = append(dataset, ggzj)
+	}
+
+	return dataset
+}

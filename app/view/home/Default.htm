@@ -1,0 +1,53 @@
+<div class="container">
+    <div class="row mgt-50">
+        <div class="list-group">
+            <a href="/rzrq/sum" class="list-group-item">
+                <i class="fa fa-bar-chart"></i> 两市融资融券图表
+            </a>
+            <a class="list-group-item">
+                <i class="fa fa-envelope-o"></i> 沪港通资金{{.Min}}分钟内变动{{.Diff}}亿自动邮件提醒 （1用户）
+                <small>发邮件到 <span id="txtMail"></span> 开通</small>
+            </a>
+        </div>
+    </div>
+
+    <table class="form-calculate row mgt-1">
+        <tr>
+            <th colspan="8">
+                <label for="selectType">对数计算</label>
+                <select id="selectType">
+                    <option value="0.125">1/8</option>
+                    <option value="0.382">P1 0.382</option>
+                    <option value="0.5">P2 1/2</option>
+                    <option value="0.618">P3 0.618</option>
+                    <option value="0.875">7/8</option>
+                </select>
+            </th>
+        </tr>
+        <tr>
+            <td><input id="inputA" type="number" class="form-control" placeholder="P计算值A"></td>
+            <td>^</td>
+            <td class="td-sm"><input id="inputPA" type="text" step="0.01" class="form-control-sm form-control" placeholder="系数"></td>
+            <td>*</td>
+            <td><input id="inputB" type="number" class="form-control" placeholder="P计算值B"></td>
+            <td>^</td>
+            <td class="td-sm"><input id="inputPB" type="text" step="0.01" class="form-control-sm form-control" placeholder="系数"></td>
+            <td>=</td>
+            <td><input id="inputV" type="number" class="form-control" placeholder="结果P值"></td>
+        </tr>
+    </table>
+    <div class="dotted"></div>
+    <table class="form-calculate row mgt-1">
+        <tr>
+            <td><input id="inputHA" type="number" class="form-control" placeholder="H计算值A"></td>
+            <td>^</td>
+            <td class="td-sm"><input id="inputHPA" type="text" step="0.01" class="form-control-sm form-control" placeholder="系数"></td>
+            <td>*</td>
+            <td><input id="inputHB" type="number" class="form-control" placeholder="H计算值B"></td>
+            <td>^</td>
+            <td><input id="inputHC" type="number" class="form-control" placeholder="H计算值C"></td>
+            <td>=</td>
+            <td><input id="inputHV" type="number" class="form-control" placeholder="结果H"></td>
+        </tr>
+    </table>
+</div>

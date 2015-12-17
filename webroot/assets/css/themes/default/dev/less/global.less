@@ -1,0 +1,176 @@
+@import "lib.less";
+@import "vars.less";
+
+// -------------------- global begin ----------------------
+html,body{
+	height: 100%;
+	font-family: @font-family;
+	background-color: @html-background-color;
+}
+body{
+	// background-image: url("../images/bk.png")
+}
+
+h1,h2,h3,h4,h5{
+	font-family: @font-family;
+}
+
+.relative{
+	position: relative;
+}
+
+a, .btn{
+	.Transition();
+}
+
+.font-red{
+	color: red;
+}
+
+
+.pd-1{
+	padding: 1rem!important;
+}
+.pd-2{
+	padding: 2rem!important;
+}
+.pdt-1{
+	padding-top: 1rem!important;
+}
+.pdt-2{
+	padding-top: 2rem!important;
+}
+.pdl-1{
+	padding-left: 1rem!important;
+}
+.pdl-2{
+	padding-left: 2rem!important;
+}
+.pdr-1{
+	padding-right: 1rem!important;
+}
+.pdr-2{
+	padding-right: 2rem!important;
+}
+.pdb-1{
+	padding-bottom: 1rem!important;
+}
+.pdb-2{
+	padding-bottom: 2rem!important;
+}
+.mgl-1{
+	margin-left: 1rem!important;
+}
+.mgl-2{
+	margin-left: 2rem!important;
+}
+.mgr-1{
+	margin-right: 1rem!important;
+}
+.mgr-2{
+	margin-right: 2rem!important;
+}
+.mgt-1{
+	margin-top: 1rem!important;
+}
+.mgt-2{
+	margin-top: 2rem!important;
+}
+.mgt-3{
+	margin-top: 3rem!important;
+}
+.mgt-5{
+	margin-top: 5rem!important;
+}
+.mgb-1{
+	margin-bottom: 1rem!important;
+}
+.mgb-2{
+	margin-bottom: 2rem!important;
+}
+.mgb-3{
+	margin-bottom: 3rem!important;
+}
+.mgb-5{
+	margin-bottom: 5rem!important;
+}
+.mgt-0{
+	margin-top: 0!important;
+}
+.mgb-0{
+	margin-bottom: 0!important;
+}
+// ------------------------------------
+
+.datepicker{
+	.fa-calendar{
+		position: relative;
+		top: 0px;
+		left: -102px;
+		color: #428bca;
+	}
+
+	input.form-control{
+		width: 110px;
+		padding-left: 25px;
+		padding-right:5px;
+		display: inline-block;
+	}
+
+	&.form-group>label{
+		display: block;
+		padding-bottom: 5px;
+	}
+
+	select.form-control{
+		width: 50px;
+		padding-right: 2px;
+		padding-left: 2px;
+		margin-right: 5px;
+		text-align: right;
+		display: inline-block;
+
+		&.cmbmin{
+			margin-left: 5px;
+		}
+	}
+
+	&.form-group.inline{
+		margin-right: auto;
+		margin-left: auto;
+	}
+}
+
+.btn-cursor{
+	cursor: pointer;
+}
+
+.line{
+	border-top: 1px solid @border-color;
+	margin: 10px auto;
+}
+
+.dotted{
+	border-top: 1px dotted @border-color;
+	margin: 10px auto;
+}
+
+.dashed{
+	border-top: 1px dashed @border-color;
+	margin: 10px auto;
+}
+
+.div-at-right{
+	position: absolute;
+	top: 5px;
+	right: 10px;
+}
+
+.div-at-bottom{
+	position: absolute;
+	bottom: 0;
+}
+
+.title{
+	overflow-wrap:break-word;
+}
