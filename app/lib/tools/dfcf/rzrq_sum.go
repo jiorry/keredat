@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jiorry/gotock/app/lib/tools/wget"
+	kutil "github.com/jiorry/keredat/app/lib/util"
 	"github.com/kere/gos"
 	"github.com/kere/gos/lib/log"
 	"github.com/kere/gos/lib/util"
@@ -133,7 +133,7 @@ func FetchRzrqSumData(page int) ([]byte, error) {
 
 	url := fmt.Sprintf(formt, "SHSZHSSUM", page, st)
 
-	body, err := wget.GetBody(url)
+	body, err := kutil.NewAjax("").GetBody(url)
 	if err != nil {
 		return nil, gos.DoError(err)
 	}

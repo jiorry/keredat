@@ -19,14 +19,12 @@ func init() {
 // RunTimer
 func RunTimer() error {
 	go run1MinuteAction()
-	go run5MinuteAction()
 	go handlerError()
 
 	return nil
 }
 
 func run1MinuteAction() {
-
 	// every 1 minute
 	c := time.Tick(1 * time.Minute)
 	for range c {
@@ -65,35 +63,6 @@ func run1MinuteAction() {
 			go func() {
 				errCh <- hx50etf.StoreTodayETFData()
 			}()
-		}
-	}
-}
-
-func run5MinuteAction() {
-	// every 1 minute
-	c := time.Tick(5 * time.Minute)
-	for range c {
-		now := gos.NowInLocation()
-		df := "2006-01-02 15:04"
-		t := now.Format("2006-01-02")
-
-		begin, err := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 9, 0), gos.GetSite().Location)
-		if err != nil {
-			panic(err)
-		}
-
-		end, err := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 15, 15), gos.GetSite().Location)
-		if err != nil {
-			panic(err)
-		}
-
-		if now.Before(begin) {
-
-		} else if end.Before(now) {
-
-		} else {
-			// between beginAt and endAt
-
 		}
 	}
 }

@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"net/mail"
 	"time"
 
-	"github.com/jiorry/gotock/app/lib/tools/wget"
+	kutil "github.com/jiorry/keredat/app/lib/util"
 	"github.com/kere/gos"
 	"github.com/kere/gos/lib/util"
 )
@@ -26,8 +25,8 @@ type HgtAmount struct {
 func GetHgtAmount() ([]*HgtAmount, error) {
 	r := rand.New(rand.NewSource(99))
 	formt := "http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?type=SHT&sty=SHTTMYE&rt=%v"
-
-	body, err := wget.GetBody(fmt.Sprintf(formt, r.Float64()))
+	ajax := kutil.NewAjax("")
+	body, err := ajax.GetBody(fmt.Sprintf(formt, r.Float64()))
 	if err != nil {
 		return nil, gos.DoError(err)
 	}
@@ -186,16 +185,6 @@ func AlertAtHgtChanged() error {
 		return nil
 	}
 
-	conf = gos.Configuration.GetConf("mail")
-	addr := conf.Get("addr")
-	from := mail.Address{conf.Get("mail_user_name"), conf.Get("mail")}
-	user := conf.Get("mail_user")
-	password := conf.Get("mail_password")
-
-	client := gos.NewSmtpPlainMail(addr, from, user, password)
-	to := make([]*mail.Address, 1)
-	to[0] = &mail.Address{"jiorry", "a@kere.me"}
-
 	var title string
 	var body string
 
@@ -212,11 +201,10 @@ func AlertAtHgtChanged() error {
 	body += fmt.Sprintf("资金变动：%.2f\n", diffCurrent)
 	body += fmt.Sprintln("http://data.eastmoney.com/bkzj/hgt.html")
 
-	err = client.Send(title, body, to)
+	err = kutil.SendEmail(title, body)
 	if err != nil {
 		return err
 	}
-	gos.Log.Info("Send Email", t)
 
 	isAlertAtHgtChanged = true
 	countAlertAtHgtChanged = 0
