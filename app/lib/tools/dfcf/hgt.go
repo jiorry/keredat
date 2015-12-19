@@ -94,20 +94,21 @@ var countAlertAtHgtChangedStep = 10
 // AlertAtHgtChanged
 // n range of minute
 func AlertAtHgtChanged() error {
+	gos.Log.Info("AlertAtHgtChanged")
 	conf := gos.Configuration.GetConf("other")
 	n := conf.GetInt("hgt_check_minute")
 	diff := conf.GetFloat("hgt_check_amount")
 	now := gos.NowInLocation()
 
-	switch now.Weekday() {
-	case time.Sunday, time.Saturday:
-		return nil
-	}
-
-	appConf := gos.Configuration.GetConf("other")
-	if util.InStringSlice(appConf.GetStringSlice("holiday"), now.Format("20060102")) {
-		return nil
-	}
+	// switch now.Weekday() {
+	// case time.Sunday, time.Saturday:
+	// 	return nil
+	// }
+	//
+	// appConf := gos.Configuration.GetConf("other")
+	// if util.InStringSlice(appConf.GetStringSlice("holiday"), now.Format("20060102")) {
+	// 	return nil
+	// }
 
 	//如果已经通知过，那么未来一段时间内不再通知
 	if countAlertAtHgtChanged > countAlertAtHgtChangedStep {

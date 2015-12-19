@@ -34,7 +34,7 @@ func StoreTodayETFData() error {
 	if hx50ETFIndexData != nil && hx50ETFIndexData.CreatedAt.Format("20060102") == gos.NowInLocation().Format("20060102") {
 		return nil
 	}
-
+	gos.Log.Info("StoreTodayETFData")
 	var err error
 	hx50ETFIndexData, hx50ETFDatasetCurrent, err = fetchTodayETFData(etfDateString(0))
 	if err != nil {

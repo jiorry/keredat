@@ -8,6 +8,7 @@ import (
 	"github.com/jiorry/keredat/app/lib/tools/sina/hx50etf"
 
 	"github.com/kere/gos"
+	"github.com/kere/gos/lib/util"
 )
 
 var errCh chan error
@@ -27,8 +28,18 @@ func RunTimer() error {
 func run1MinuteAction() {
 	// every 1 minute
 	c := time.Tick(1 * time.Minute)
+	oConf := gos.Configuration.GetConf("other")
 	for range c {
 		now := gos.NowInLocation()
+		switch now.Weekday() {
+		case time.Sunday, time.Saturday:
+			continue
+		}
+
+		if util.InStringSlice(oConf.GetStringSlice("holiday"), now.Format("20060102")) {
+			continue
+		}
+
 		df := "2006-01-02 15:04"
 		t := now.Format("2006-01-02")
 
