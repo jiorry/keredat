@@ -137,7 +137,7 @@ func fetchETFItems(indexData *hx50ETFIndex, list [][]byte) ([]*hx50ETF, error) {
 					return nil, gos.DoError("parse CON_OP string list error")
 				}
 				data.IndexID = indexData.ID
-				data.Date = string(arr[32])
+				data.Date = strings.Split(string(arr[32]), " ")[0]
 				data.Exec = util.ParseMoney(string(arr[7]))
 				data.Price = util.ParseMoney(string(arr[2]))
 				data.Prev = util.ParseMoney(string(arr[8]))

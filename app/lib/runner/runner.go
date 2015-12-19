@@ -30,6 +30,7 @@ func run1MinuteAction() {
 	c := time.Tick(1 * time.Minute)
 	oConf := gos.Configuration.GetConf("other")
 	for range c {
+
 		now := gos.NowInLocation()
 		switch now.Weekday() {
 		case time.Sunday, time.Saturday:
@@ -49,7 +50,7 @@ func run1MinuteAction() {
 		}
 
 		endA, _ := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 11, 30), gos.GetSite().Location)
-		beginB, _ := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 31, 0), gos.GetSite().Location)
+		beginB, _ := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 13, 0), gos.GetSite().Location)
 		endB, _ := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 15, 15), gos.GetSite().Location)
 		night, _ := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 19, 0), gos.GetSite().Location)
 
@@ -62,7 +63,7 @@ func run1MinuteAction() {
 			}()
 		} else if endA.Before(now) && now.Before(beginB) {
 			// 中午休息
-		} else if beginB.Before(now) && endB.Before(now) {
+		} else if beginB.Before(now) && now.Before(endB) {
 			// 下半场
 			go func() {
 				errCh <- dfcf.AlertAtHgtChanged()
