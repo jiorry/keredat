@@ -8,7 +8,8 @@ import (
 	"math/rand"
 	"time"
 
-	kutil "github.com/jiorry/keredat/app/lib/util"
+	"github.com/jiorry/keredat/app/lib/util/ajax"
+	"github.com/jiorry/keredat/app/lib/util/alert"
 	"github.com/kere/gos"
 	"github.com/kere/gos/lib/util"
 )
@@ -25,7 +26,7 @@ type HgtAmount struct {
 func GetHgtAmount() ([]*HgtAmount, error) {
 	r := rand.New(rand.NewSource(99))
 	formt := "http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?type=SHT&sty=SHTTMYE&rt=%v"
-	ajax := kutil.NewAjax("")
+	ajax := ajax.NewAjax("")
 	body, err := ajax.GetBody(fmt.Sprintf(formt, r.Float64()))
 	if err != nil {
 		return nil, gos.DoError(err)
@@ -93,7 +94,7 @@ var countAlertAtHgtChangedStep = 10
 
 // AlertAtHgtChanged
 // n range of minute
-func AlertAtHgtChanged() error {
+func AlertAtHgtChanged() (*alert.AlertMessage, error) {
 	gos.Log.Info("AlertAtHgtChanged")
 	conf := gos.Configuration.GetConf("other")
 	n := conf.GetInt("hgt_check_minute")
@@ -117,7 +118,7 @@ func AlertAtHgtChanged() error {
 
 	if isAlertAtHgtChanged && countAlertAtHgtChanged < countAlertAtHgtChangedStep {
 		countAlertAtHgtChanged++
-		return nil
+		return nil, nil
 	}
 
 	nowUnix := now.Unix()
@@ -127,12 +128,12 @@ func AlertAtHgtChanged() error {
 
 	begin, err := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 9, 0), gos.GetSite().Location)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	beginUnix := begin.Unix()
 	// end, err := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 15, 15), gos.GetSite().Location)
 	// if err != nil {
-	// 	return err
+	// 	return nil, err
 	// }
 
 	// gos.Log.Info("AlertAtHgtChanged A", n, diff, now, begin, end)
@@ -146,18 +147,18 @@ func AlertAtHgtChanged() error {
 	midA, _ := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 12, 0), gos.GetSite().Location)
 	midB, _ := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 13, 0), gos.GetSite().Location)
 	if nowUnix > midA.Unix() && nowUnix < midB.Unix() {
-		return nil
+		return nil, nil
 	} else if nowUnix > midB.Unix() {
 		minute -= 60
 	}
 
 	if minute < n+2 {
-		return nil
+		return nil, nil
 	}
 
 	items, err := GetHgtAmount()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// gos.Log.Info("AlertAtHgtChanged B", minute, n, len(items))
 
@@ -170,45 +171,42 @@ func AlertAtHgtChanged() error {
 	// 如果任然==0，判断是数据有误
 	if amountCurrent == 0 && minute > 10 {
 		gos.Log.Info("amountCurrent==0 min=", minute, " ", items[minute], items[minute-1], items[minute-2], items[minute-3])
-		return nil
+		return nil, nil
 	}
 
 	amountBefore := items[minute-n].AmountA
 	if amountBefore == 0 && minute > 10 {
 		gos.Log.Info("amountBefore==0 min=", minute, " ", items[minute], items[minute-1], items[minute-2], items[minute-3])
-		return nil
+		return nil, nil
 	}
 
 	diffCurrent := amountCurrent - amountBefore
 	// gos.Log.Info("AlertAtHgtChanged C", "cur", amountCurrent, "bef", amountBefore, "Diff:", diffCurrent, items[minute].Date, items[minute-n].Date)
 	// 如果幅度小于预期，则退出检查
 	if math.Abs(diffCurrent) < diff {
-		return nil
+		return nil, nil
 	}
 
 	var title string
-	var body string
+	var bodyBuf = bytes.NewBuffer(nil)
+	var itype = 0
 
 	if diffCurrent > 0 {
 		title = fmt.Sprintf("沪港通资金异动 %.2f", diffCurrent)
+		itype = 1
 	} else {
 		title = fmt.Sprintf("沪港通资金异动 %.2f", diffCurrent)
+		itype = -1
 	}
 
 	for i := 0; i < n; i++ {
-		body += fmt.Sprintln(items[minute-i].Date.Format("15:04"), " ", items[minute-i].AmountA)
+		bodyBuf.WriteString(fmt.Sprintln(items[minute-i].Date.Format("15:04"), " ", items[minute-i].AmountA, "<br/>"))
 	}
-
-	body += fmt.Sprintf("资金变动：%.2f\n", diffCurrent)
-	body += fmt.Sprintln("http://data.eastmoney.com/bkzj/hgt.html")
-
-	err = kutil.SendEmail(title, body)
-	if err != nil {
-		return err
-	}
+	bodyBuf.WriteString(fmt.Sprintln("资金变动：%.2f\n", diffCurrent))
+	// body += fmt.Sprintln("http://data.eastmoney.com/bkzj/hgt.html")
 
 	isAlertAtHgtChanged = true
 	countAlertAtHgtChanged = 0
 
-	return nil
+	return alert.NewAlertMessage(title, bodyBuf.Bytes(), itype), nil
 }

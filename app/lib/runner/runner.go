@@ -6,12 +6,15 @@ import (
 
 	"github.com/jiorry/keredat/app/lib/tools/dfcf"
 	"github.com/jiorry/keredat/app/lib/tools/sina/hx50etf"
+	"github.com/jiorry/keredat/app/lib/util/alert"
+	"github.com/jiorry/keredat/app/lib/util/email"
 
 	"github.com/kere/gos"
 	"github.com/kere/gos/lib/util"
 )
 
 var errCh chan error
+var alertCh chan *alert.AlertMessage
 
 func init() {
 	errCh = make(chan error)
@@ -59,21 +62,24 @@ func run1MinuteAction() {
 		} else if beginA.Before(now) && now.Before(endA) {
 			// 早场
 			go func() {
-				errCh <- dfcf.AlertAtHgtChanged()
+				alertItem, err := dfcf.AlertAtHgtChanged()
+				errCh <- err
 			}()
 		} else if endA.Before(now) && now.Before(beginB) {
 			// 中午休息
 		} else if beginB.Before(now) && now.Before(endB) {
 			// 下半场
 			go func() {
-				errCh <- dfcf.AlertAtHgtChanged()
+				alertItem, err := dfcf.AlertAtHgtChanged()
+				errCh <- err
 			}()
 		} else if endB.Before(now) && now.Before(night) {
 			// 下午
 		} else if night.Before(now) {
 			// 晚上
 			go func() {
-				errCh <- hx50etf.StoreTodayETFData()
+				err := hx50etf.StoreTodayETFData()
+				errCh <- err
 			}()
 		}
 	}
@@ -82,6 +88,11 @@ func run1MinuteAction() {
 func handlerError() {
 	for {
 		select {
+		case a := <-alertCh:
+			err := email.SendPlainEmail(a.TitleString(), a.Message)
+			if err != nil {
+				gos.DoError(err)
+			}
 		case err := <-errCh:
 			if err != nil {
 				gos.DoError(err)

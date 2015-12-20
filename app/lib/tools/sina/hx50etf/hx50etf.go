@@ -11,6 +11,7 @@ import (
 	"github.com/kere/gos/db"
 
 	"github.com/jiorry/keredat/app/lib/util"
+	"github.com/jiorry/keredat/app/lib/util/ajax"
 	"github.com/kere/gos"
 )
 
@@ -19,13 +20,13 @@ var codeListCurentDown [][]byte
 var codeListNextUp [][]byte
 var codeListNextDown [][]byte
 
-var ajax *util.Ajax
+var ajaxClient *ajax.Ajax
 var hx50ETFIndexData *hx50ETFIndex
 var hx50ETFDatasetCurrent []*hx50ETF
 var hx50ETFDatasetNext []*hx50ETF
 
 func init() {
-	ajax = util.NewAjax("")
+	ajaxClient = ajax.NewAjax("")
 	hx50ETFIndexData = &hx50ETFIndex{}
 }
 
@@ -109,7 +110,7 @@ func fetchETFItems(indexData *hx50ETFIndex, list [][]byte) ([]*hx50ETF, error) {
 	if len(listStrOP) == 0 {
 		return nil, gos.DoError("listStrOP is empty")
 	}
-	body, err := ajax.GetBody(fmt.Sprintf("http://hq.sinajs.cn/list=%s", strings.Join(listStrOP, ",")))
+	body, err := ajaxClient.GetBody(fmt.Sprintf("http://hq.sinajs.cn/list=%s", strings.Join(listStrOP, ",")))
 	if err != nil {
 		return nil, gos.DoError(err)
 	}
@@ -117,7 +118,7 @@ func fetchETFItems(indexData *hx50ETFIndex, list [][]byte) ([]*hx50ETF, error) {
 	for _, b := range list {
 		listStrSO = append(listStrSO, fmt.Sprint("CON_SO_", string(b)))
 	}
-	bodySO, err := ajax.GetBody(fmt.Sprintf("http://hq.sinajs.cn/list=%s", strings.Join(listStrSO, ",")))
+	bodySO, err := ajaxClient.GetBody(fmt.Sprintf("http://hq.sinajs.cn/list=%s", strings.Join(listStrSO, ",")))
 	if err != nil {
 		return nil, gos.DoError(err)
 	}
@@ -191,7 +192,7 @@ func prepareETF(monthStr string) (*hx50ETFIndex, [][]byte, [][]byte, error) {
 	// http://hq.sinajs.cn/list=OP_UP_5100501512,OP_DOWN_5100501512,s_sh510050,sh510050
 	url := "http://hq.sinajs.cn/list=OP_UP_510050%s,OP_DOWN_510050%s,sh510050"
 
-	body, err := ajax.GetBody(fmt.Sprintf(url, monthStr, monthStr))
+	body, err := ajaxClient.GetBody(fmt.Sprintf(url, monthStr, monthStr))
 	if err != nil {
 		return nil, nil, nil, gos.DoError(err)
 	}

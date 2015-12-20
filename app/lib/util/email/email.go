@@ -1,4 +1,4 @@
-package util
+package email
 
 import (
 	"net/mail"
@@ -7,7 +7,18 @@ import (
 	"github.com/kere/gos"
 )
 
-func SendEmail(title, body string) error {
+// func SendHtmlEmail
+func SendHTMLEmail(title string, body []byte) error {
+	return SendEmail(title, body, "html")
+}
+
+// SendPlainEmail
+func SendPlainEmail(title string, body []byte) error {
+	return SendEmail(title, body, "plain")
+}
+
+// SendEmail
+func SendEmail(title string, body []byte, mailType string) error {
 	conf := gos.Configuration.GetConf("mail")
 	addr := conf.Get("addr")
 	from := mail.Address{conf.Get("mail_user_name"), conf.Get("mail")}
@@ -15,7 +26,7 @@ func SendEmail(title, body string) error {
 	password := conf.Get("mail_password")
 	mailList := strings.Split(conf.Get("mail_to_list"), ",")
 
-	client := gos.NewSmtpPlainMail(addr, from, user, password)
+	client := gos.NewSMTPlainMail(addr, from, user, password)
 	var to = make([]*mail.Address, len(mailList))
 	var arr []string
 	for i, _ := range mailList {
@@ -28,5 +39,5 @@ func SendEmail(title, body string) error {
 	}
 
 	gos.Log.Info("Send Email", title)
-	return client.Send(title, body, to)
+	return client.Send(to, title, body, mailType)
 }
