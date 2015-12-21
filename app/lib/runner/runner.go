@@ -63,7 +63,11 @@ func run1MinuteAction() {
 			// 早场
 			go func() {
 				alertItem, err := dfcf.AlertAtHgtChanged()
-				errCh <- err
+				if err != nil {
+					errCh <- err
+				} else {
+					alertCh <- alertItem
+				}
 			}()
 		} else if endA.Before(now) && now.Before(beginB) {
 			// 中午休息
@@ -71,7 +75,11 @@ func run1MinuteAction() {
 			// 下半场
 			go func() {
 				alertItem, err := dfcf.AlertAtHgtChanged()
-				errCh <- err
+				if err != nil {
+					errCh <- err
+				} else {
+					alertCh <- alertItem
+				}
 			}()
 		} else if endB.Before(now) && now.Before(night) {
 			// 下午
@@ -89,6 +97,7 @@ func handlerError() {
 	for {
 		select {
 		case a := <-alertCh:
+			gos.Log.Info("email:", a.TitleString())
 			err := email.SendPlainEmail(a.TitleString(), a.Message)
 			if err != nil {
 				gos.DoError(err)
