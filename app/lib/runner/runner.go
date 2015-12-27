@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/jiorry/keredat/app/lib/tools/dfcf"
-	"github.com/jiorry/keredat/app/lib/tools/sina/hx50etf"
 	"github.com/jiorry/keredat/app/lib/util/alert"
 	"github.com/jiorry/keredat/app/lib/util/email"
 
@@ -85,10 +84,10 @@ func run1MinuteAction() {
 			// 下午
 		} else if night.Before(now) {
 			// 晚上
-			go func() {
-				err := hx50etf.StoreTodayETFData()
-				errCh <- err
-			}()
+			// go func() {
+			// 	err := hx50etf.StoreTodayETFData()
+			// 	errCh <- err
+			// }()
 		}
 	}
 }
