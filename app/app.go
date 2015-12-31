@@ -5,7 +5,7 @@ import (
 
 	"github.com/jiorry/keredat/app/api"
 	"github.com/jiorry/keredat/app/lib/runner"
-	"github.com/jiorry/keredat/app/lib/util"
+	"github.com/jiorry/keredat/app/lib/util/email"
 	"github.com/jiorry/keredat/app/page/home"
 	"github.com/jiorry/keredat/app/page/rzrq"
 	"github.com/jiorry/keredat/app/page/user"
@@ -35,7 +35,7 @@ func main() {
 
 	err := runner.RunTimer()
 	if err != nil {
-		util.SendEmail("keredat err", fmt.Sprint(err))
+		email.SendPlainEmail("keredat err", []byte(fmt.Sprint(err)))
 		return
 	}
 

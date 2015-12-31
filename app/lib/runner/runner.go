@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jiorry/keredat/app/lib/tools/dfcf"
+	"github.com/jiorry/keredat/app/lib/tools/sina/indexB"
 	"github.com/jiorry/keredat/app/lib/util/alert"
 	"github.com/jiorry/keredat/app/lib/util/email"
 
@@ -17,14 +18,26 @@ var alertCh chan *alert.AlertMessage
 
 func init() {
 	errCh = make(chan error)
+	alertCh = make(chan *alert.AlertMessage)
 }
 
 // RunTimer
 func RunTimer() error {
+	indexB.Alert()
+
 	go run1MinuteAction()
 	go handlerError()
 
 	return nil
+}
+
+func doAlert(f func() (*alert.AlertMessage, error)) {
+	alertItem, err := f()
+	if err != nil {
+		errCh <- err
+	} else {
+		alertCh <- alertItem
+	}
 }
 
 func run1MinuteAction() {
@@ -61,24 +74,18 @@ func run1MinuteAction() {
 		} else if beginA.Before(now) && now.Before(endA) {
 			// 早场
 			go func() {
-				alertItem, err := dfcf.AlertAtHgtChanged()
-				if err != nil {
-					errCh <- err
-				} else {
-					alertCh <- alertItem
-				}
+				doAlert(dfcf.AlertAtHgtChanged)
 			}()
+			go func() {
+				doAlert(indexB.Alert)
+			}()
+
 		} else if endA.Before(now) && now.Before(beginB) {
 			// 中午休息
 		} else if beginB.Before(now) && now.Before(endB) {
 			// 下半场
 			go func() {
-				alertItem, err := dfcf.AlertAtHgtChanged()
-				if err != nil {
-					errCh <- err
-				} else {
-					alertCh <- alertItem
-				}
+				doAlert(dfcf.AlertAtHgtChanged)
 			}()
 		} else if endB.Before(now) && now.Before(night) {
 			// 下午
@@ -102,9 +109,7 @@ func handlerError() {
 				gos.DoError(err)
 			}
 		case err := <-errCh:
-			if err != nil {
-				gos.DoError(err)
-			}
+			gos.DoError(err)
 		}
 	}
 }
