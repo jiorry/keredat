@@ -23,7 +23,7 @@ func init() {
 
 // RunTimer
 func RunTimer() error {
-	indexB.Alert()
+	// indexB.Alert()
 
 	go run1MinuteAction()
 	go handlerError()
