@@ -1,6 +1,6 @@
 package indexB
 
-// 华夏基金ETF
+// 成分B指数
 
 import (
 	"bytes"
