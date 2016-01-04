@@ -87,6 +87,9 @@ func run1MinuteAction() {
 			go func() {
 				doAlert(dfcf.AlertAtHgtChanged)
 			}()
+			go func() {
+				doAlert(indexB.Alert)
+			}()
 		} else if endB.Before(now) && now.Before(night) {
 			// 下午
 		} else if night.Before(now) {
