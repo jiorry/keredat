@@ -25,6 +25,7 @@ func init() {
 }
 
 func Alert() (*alert.AlertMessage, error) {
+	gos.Log.Info("indexB Alert")
 	conf := gos.Configuration.GetConf("other")
 	n := conf.GetInt("indexb_check_minute")
 	diff := conf.GetFloat("indexb_check_value")
