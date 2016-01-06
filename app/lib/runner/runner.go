@@ -35,7 +35,9 @@ func doAlert(f func() (*alert.AlertMessage, error)) {
 	alertItem, err := f()
 	if err != nil {
 		errCh <- err
-	} else {
+	}
+
+	if alertItem != nil {
 		alertCh <- alertItem
 	}
 }
