@@ -31,21 +31,14 @@ func RunTimer() error {
 	return nil
 }
 
-func doAlert(f func() (*alert.AlertMessage, error)) {
-	alertItem, err := f()
-	if err != nil {
-		errCh <- err
-	}
-
-	if alertItem != nil {
-		alertCh <- alertItem
-	}
-}
-
 func run1MinuteAction() {
 	// every 1 minute
 	c := time.Tick(1 * time.Minute)
 	oConf := gos.Configuration.GetConf("other")
+
+	hgtAlert := &AlertRunner{Func: dfcf.AlertAtHgtChanged}
+	indexBAlert := &AlertRunner{Func: indexB.Alert}
+
 	for range c {
 
 		now := gos.NowInLocation()
@@ -75,23 +68,15 @@ func run1MinuteAction() {
 			// 9点以前
 		} else if beginA.Before(now) && now.Before(endA) {
 			// 早场
-			go func() {
-				doAlert(dfcf.AlertAtHgtChanged)
-			}()
-			go func() {
-				doAlert(indexB.Alert)
-			}()
+			hgtAlert.Run()
+			indexBAlert.Run()
 
 		} else if endA.Before(now) && now.Before(beginB) {
 			// 中午休息
 		} else if beginB.Before(now) && now.Before(endB) {
 			// 下半场
-			go func() {
-				doAlert(dfcf.AlertAtHgtChanged)
-			}()
-			go func() {
-				doAlert(indexB.Alert)
-			}()
+			hgtAlert.Run()
+			indexBAlert.Run()
 		} else if endB.Before(now) && now.Before(night) {
 			// 下午
 		} else if night.Before(now) {
@@ -116,5 +101,35 @@ func handlerError() {
 		case err := <-errCh:
 			gos.DoError(err)
 		}
+	}
+}
+
+type AlertRunner struct {
+	Func  func() (*alert.AlertMessage, error)
+	IsRun bool
+}
+
+func (a *AlertRunner) Run() {
+	go doAlert(a.Func)
+	a.IsRun = true
+}
+
+func (a *AlertRunner) RunOnce() {
+	if a.IsRun {
+		return
+	}
+
+	go doAlert(a.Func)
+	a.IsRun = true
+}
+
+func doAlert(f func() (*alert.AlertMessage, error)) {
+	alertItem, err := f()
+	if err != nil {
+		errCh <- err
+	}
+
+	if alertItem != nil {
+		alertCh <- alertItem
 	}
 }

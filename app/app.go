@@ -35,6 +35,7 @@ func main() {
 
 	err := runner.RunTimer()
 	if err != nil {
+		gos.DoError(err)
 		email.SendPlainEmail("keredat err", []byte(fmt.Sprint(err)))
 		return
 	}
