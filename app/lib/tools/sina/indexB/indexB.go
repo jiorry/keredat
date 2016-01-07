@@ -17,11 +17,12 @@ import (
 
 var (
 	ajaxClient *ajax.Ajax
-	indexBList list.List
+	indexBList *list.List
 )
 
 func init() {
 	ajaxClient = ajax.NewAjax("")
+	indexBList = list.New()
 }
 
 func Alert() (*alert.AlertMessage, error) {
@@ -36,21 +37,19 @@ func Alert() (*alert.AlertMessage, error) {
 	}
 
 	fmt.Println("A -------------", data)
-
-	l := list.New()
-	l.PushFront(data)
-	if l.Len() < n {
+	indexBList.PushFront(data)
+	if indexBList.Len() < n {
 		return nil, nil
 	}
-	if l.Len() > n {
-		l.Remove(l.Back())
+	if indexBList.Len() > n {
+		indexBList.Remove(indexBList.Back())
 	}
 
-	front := l.Front().Value.(*indexBStruct)
-	back := l.Back().Value.(*indexBStruct)
+	front := indexBList.Front().Value.(*indexBStruct)
+	back := indexBList.Back().Value.(*indexBStruct)
 
 	val := 100 * (front.Price - back.Price) / back.Price
-	fmt.Println("B -------------", l.Len(), front, back)
+	fmt.Println("B -------------", indexBList.Len(), front, back)
 	fmt.Println("C -------------", val, diff)
 	if math.Abs(val) < diff {
 		return nil, nil
