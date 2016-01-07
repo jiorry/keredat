@@ -36,7 +36,6 @@ func Alert() (*alert.AlertMessage, error) {
 		return nil, err
 	}
 
-	fmt.Println("A -------------", data)
 	indexBList.PushFront(data)
 	if indexBList.Len() < n {
 		return nil, nil
@@ -49,8 +48,7 @@ func Alert() (*alert.AlertMessage, error) {
 	back := indexBList.Back().Value.(*indexBStruct)
 
 	val := 100 * (front.Price - back.Price) / back.Price
-	fmt.Println("B -------------", indexBList.Len(), front, back)
-	fmt.Println("C -------------", val, diff)
+
 	if math.Abs(val) < diff {
 		return nil, nil
 	}
