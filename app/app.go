@@ -1,11 +1,8 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/jiorry/keredat/app/api"
 	"github.com/jiorry/keredat/app/lib/runner"
-	"github.com/jiorry/keredat/app/lib/util/email"
 	"github.com/jiorry/keredat/app/page/home"
 	"github.com/jiorry/keredat/app/page/rzrq"
 	"github.com/jiorry/keredat/app/page/user"
@@ -33,12 +30,7 @@ func main() {
 	// websocket router
 	// gos.WebSocketRoute("conn", (*hiuser.UserWebSock)(nil))
 
-	err := runner.RunTimer()
-	if err != nil {
-		gos.DoError(err)
-		email.SendPlainEmail("keredat err", []byte(fmt.Sprint(err)))
-		return
-	}
+	runner.RunTimer()
 
 	gos.Start()
 }
