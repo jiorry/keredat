@@ -40,6 +40,7 @@ func Alert() (*alert.AlertMessage, error) {
 	if indexBList.Len() < n {
 		return nil, nil
 	}
+
 	if indexBList.Len() > n {
 		indexBList.Remove(indexBList.Back())
 	}

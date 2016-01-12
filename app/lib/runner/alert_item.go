@@ -7,58 +7,66 @@ import (
 	"github.com/kere/gos/lib/util"
 )
 
-type AlertItem struct {
+type AlertRunner struct {
 	Func         func() (*alert.AlertMessage, error)
+	breakCount   int
+	isBreak      bool
 	CheckHoliday bool
-	isRun        bool
-	count        int
+	RunMode      int
 }
 
-func NewAlertItem(f func() (*alert.AlertMessage, error)) *AlertItem {
-	return &AlertItem{Func: f, CheckHoliday: true}
+// NewAlertRunner
+func NewAlertRunner(f func() (*alert.AlertMessage, error), runMode int) *AlertRunner {
+	return &AlertRunner{Func: f, CheckHoliday: true, RunMode: runMode}
 }
 
-func (a *AlertItem) ResetStatus() {
-	a.isRun = false
-	a.count = 0
-}
-
-func (a *AlertItem) Run() {
+// Run function
+func (a *AlertRunner) Run() bool {
 	if a.CheckHoliday && util.InStringSlice(holiday, gos.NowInLocation().Format("20060102")) {
-		return
+		return false
 	}
-
-	if a.count > 5 {
-		a.count = 0
-	} else if a.count > 0 {
-		a.count++
-	}
-
 	go a.doAlert()
+	return true
 }
 
-func (a *AlertItem) RunOnce() {
-	if a.isRun {
+func (a *AlertRunner) doAlert() {
+	var am *alert.AlertMessage
+	var err error
+	// 每一次都运行
+	if a.RunMode == 0 {
+		am, err = a.Func()
+		if err != nil {
+			errCh <- err
+			return
+		}
+	}
+
+	if a.isBreak {
+		if a.breakCount < 5 {
+			return
+		} else {
+			a.breakCount = 0
+			a.isBreak = false
+		}
+	}
+
+	// 运行成功后停止一段时间
+	if a.RunMode == 1 {
+		am, err = a.Func()
+		if err != nil {
+			errCh <- err
+			return
+		}
+	}
+
+	if am == nil {
 		return
+	} else {
+		alertCh <- am
+		a.isBreak = true
 	}
 
-	a.Run()
-}
-
-func (a *AlertItem) doAlert() {
-	if a.count > 0 {
-		return
+	if a.isBreak {
+		a.breakCount++
 	}
-
-	alertItem, err := a.Func()
-	if err != nil {
-		errCh <- err
-	}
-
-	if alertItem != nil {
-		alertCh <- alertItem
-	}
-
-	a.isRun = true
-	a.count++
 }

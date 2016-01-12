@@ -8,6 +8,6 @@ import (
 // RunTimer
 func RunTimer() {
 	r := &Runner{}
-	r.Open = []*AlertItem{NewAlertItem(dfcf.AlertAtHgtChanged), NewAlertItem(indexB.Alert)}
+	r.Open = []*AlertRunner{NewAlertRunner(dfcf.AlertAtHgtChanged, 1), NewAlertRunner(indexB.Alert, 0)}
 	runtimer(r)
 }

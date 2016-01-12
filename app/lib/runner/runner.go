@@ -30,12 +30,12 @@ func runtimer(r *Runner) {
 
 // Runner moniter
 type Runner struct {
-	Before          []*AlertItem
-	MorningPrepare  []*AlertItem
-	Noon            []*AlertItem
-	Open            []*AlertItem
-	ClosedAfterNoon []*AlertItem
-	Night           []*AlertItem
+	Before          []*AlertRunner
+	MorningPrepare  []*AlertRunner
+	Noon            []*AlertRunner
+	Open            []*AlertRunner
+	ClosedAfterNoon []*AlertRunner
+	Night           []*AlertRunner
 }
 
 func (a *Runner) do1MinuteAction() {
