@@ -63,31 +63,6 @@ func GetHgtAmount() ([]*HgtAmount, error) {
 	return result, nil
 }
 
-// func RunAlertHgt() {
-// 	var errCh = make(chan error)
-// 	c := time.Tick(1 * time.Minute)
-// 	conf := gos.Configuration.GetConf("other")
-// 	minute := conf.GetInt("hgt_check_minute")
-// 	amount := conf.GetFloat("hgt_check_amount")
-//
-// 	go func() {
-// 		for range c {
-// 			errCh <- AlertAtHgtChanged(minute, amount)
-// 		}
-// 	}()
-//
-// 	go func() {
-// 		for {
-// 			select {
-// 			case err := <-errCh:
-// 				if err != nil {
-// 					gos.DoError(err)
-// 				}
-// 			}
-// 		}
-// 	}()
-// }
-
 var isAlertAtHgtChanged = false
 var countAlertAtHgtChanged = 0
 var countAlertAtHgtChangedStep = 10
@@ -95,35 +70,14 @@ var countAlertAtHgtChangedStep = 10
 // AlertAtHgtChanged
 // n range of minute
 func AlertAtHgtChanged() (*alert.AlertMessage, error) {
-	gos.Log.Info("AlertAtHgtChanged")
 	conf := gos.Configuration.GetConf("other")
 	n := conf.GetInt("hgt_check_minute")
 	diff := conf.GetFloat("hgt_check_amount")
 	now := gos.NowInLocation()
 
-	// switch now.Weekday() {
-	// case time.Sunday, time.Saturday:
-	// 	return nil
-	// }
-	//
-	// appConf := gos.Configuration.GetConf("other")
-	// if util.InStringSlice(appConf.GetStringSlice("holiday"), now.Format("20060102")) {
-	// 	return nil
-	// }
-
-	//如果已经通知过，那么未来一段时间内不再通知
-	if countAlertAtHgtChanged > countAlertAtHgtChangedStep {
-		isAlertAtHgtChanged = false
-	}
-
-	if isAlertAtHgtChanged && countAlertAtHgtChanged < countAlertAtHgtChangedStep {
-		countAlertAtHgtChanged++
-		return nil, nil
-	}
-
 	nowUnix := now.Unix()
 	df := "2006-01-02 15:04"
-	// t := fmt.Sprintf("%04d-%02d-%02d", now.Year(), now.Month(), now.Day())
+
 	t := now.Format("2006-01-02")
 
 	begin, err := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 9, 0), gos.GetSite().Location)
@@ -131,15 +85,6 @@ func AlertAtHgtChanged() (*alert.AlertMessage, error) {
 		return nil, err
 	}
 	beginUnix := begin.Unix()
-	// end, err := time.ParseInLocation(df, fmt.Sprintf("%s %02d:%02d", t, 15, 15), gos.GetSite().Location)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// gos.Log.Info("AlertAtHgtChanged A", n, diff, now, begin, end)
-	// if nowUnix < beginUnix || nowUnix > end.Unix() {
-	// 	return nil
-	// }
 
 	minute := int((nowUnix - beginUnix) / 60)
 
@@ -160,7 +105,6 @@ func AlertAtHgtChanged() (*alert.AlertMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	// gos.Log.Info("AlertAtHgtChanged B", minute, n, len(items))
 
 	amountCurrent := items[minute].AmountA
 	// 如果当前时间的金额==0，那么退一步取值
@@ -192,21 +136,17 @@ func AlertAtHgtChanged() (*alert.AlertMessage, error) {
 	var itype = 0
 
 	if diffCurrent > 0 {
-		title = fmt.Sprintf("沪港通资金异动 %.2f", diffCurrent)
+		title = fmt.Sprintf("沪港通资金异动 %.2f亿元", diffCurrent)
 		itype = 1
 	} else {
-		title = fmt.Sprintf("沪港通资金异动 %.2f", diffCurrent)
+		title = fmt.Sprintf("沪港通资金异动 %.2f亿元", diffCurrent)
 		itype = -1
 	}
 
 	for i := 0; i < n; i++ {
-		bodyBuf.WriteString(fmt.Sprintln(items[minute-i].Date.Format("15:04"), " ", items[minute-i].AmountA, "<br/>"))
+		bodyBuf.WriteString(fmt.Sprintln(items[minute-i].Date.Format("15:04"), " ", items[minute-i].AmountA, "\n"))
 	}
-	bodyBuf.WriteString(fmt.Sprintln("资金变动：%.2f\n", diffCurrent))
-	// body += fmt.Sprintln("http://data.eastmoney.com/bkzj/hgt.html")
-
-	isAlertAtHgtChanged = true
-	countAlertAtHgtChanged = 0
+	bodyBuf.WriteString(fmt.Sprintf("资金变动：%.2f亿元\n", diffCurrent))
 
 	return alert.NewAlertMessage(title, bodyBuf.Bytes(), itype), nil
 }

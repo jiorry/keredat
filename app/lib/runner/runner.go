@@ -40,7 +40,8 @@ type Runner struct {
 
 func (a *Runner) do1MinuteAction() {
 	// every 1 minute
-	c := time.Tick(1 * time.Minute)
+	// c := time.Tick(1 * time.Minute)
+	c := time.Tick(1 * time.Second)
 
 	for range c {
 

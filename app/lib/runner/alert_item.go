@@ -10,7 +10,7 @@ import (
 type AlertRunner struct {
 	Func         func() (*alert.AlertMessage, error)
 	breakCount   int
-	isBreak      bool
+	isDoBreak    bool
 	CheckHoliday bool
 	RunMode      int
 }
@@ -32,25 +32,29 @@ func (a *AlertRunner) Run() bool {
 func (a *AlertRunner) doAlert() {
 	var am *alert.AlertMessage
 	var err error
+
 	// 每一次都运行
 	if a.RunMode == 0 {
 		am, err = a.Func()
 		if err != nil {
 			errCh <- err
-			return
 		}
+
+		return
 	}
 
-	if a.isBreak {
+	if a.isDoBreak {
+		a.breakCount++
+
 		if a.breakCount < 5 {
 			return
 		} else {
 			a.breakCount = 0
-			a.isBreak = false
+			a.isDoBreak = false
 		}
 	}
 
-	// 运行成功后停止一段时间
+	// 运行成功后休息一段周期
 	if a.RunMode == 1 {
 		am, err = a.Func()
 		if err != nil {
@@ -62,11 +66,16 @@ func (a *AlertRunner) doAlert() {
 	if am == nil {
 		return
 	} else {
-		alertCh <- am
-		a.isBreak = true
+		if am.Title == "alert test" {
+			println("Title:alert test")
+		} else {
+			alertCh <- am
+		}
+		a.isDoBreak = true
 	}
 
-	if a.isBreak {
-		a.breakCount++
-	}
+}
+
+func AlertTest() (*alert.AlertMessage, error) {
+	return alert.NewAlertMessage("alert test", []byte("alert test"), 1), nil
 }
