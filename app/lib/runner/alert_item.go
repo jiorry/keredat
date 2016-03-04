@@ -64,7 +64,7 @@ func (a *AlertRunner) doAlert() {
 	}
 
 	if am == nil {
-		return
+		a.isDoBreak = false
 	} else {
 		if am.Title == "alert test" {
 			println("Title:alert test")

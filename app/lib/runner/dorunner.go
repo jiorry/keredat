@@ -7,6 +7,7 @@ import (
 
 // RunTimer
 func RunTimer() {
+	dfcf.FetchGzqh()
 	r := &Runner{}
 	r.Open = []*AlertRunner{NewAlertRunner(dfcf.AlertAtHgtChanged, 1), NewAlertRunner(indexB.Alert, 1)}
 	runtimer(r)
