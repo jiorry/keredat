@@ -32,46 +32,42 @@ func (a *AlertRunner) Run() bool {
 func (a *AlertRunner) doAlert() {
 	var am *alert.AlertMessage
 	var err error
+	am, err = a.Func()
 
-	// 每一次都运行
-	if a.RunMode == 0 {
-		am, err = a.Func()
-		if err != nil {
-			errCh <- err
-		}
-
-		return
-	}
-
-	if a.isDoBreak {
-		a.breakCount++
-
-		if a.breakCount < 5 {
-			return
-		} else {
-			a.breakCount = 0
-			a.isDoBreak = false
-		}
-	}
-
-	// 运行成功后休息一段周期
-	if a.RunMode == 1 {
-		am, err = a.Func()
+	switch a.RunMode {
+	case 0: // 每一次都运行
 		if err != nil {
 			errCh <- err
 			return
 		}
-	}
-
-	if am == nil {
-		a.isDoBreak = false
-	} else {
-		if am.Title == "alert test" {
-			println("Title:alert test")
-		} else {
+		if am != nil {
 			alertCh <- am
 		}
-		a.isDoBreak = true
+
+	case 1: // 运行成功后休息一段周期
+		if a.isDoBreak {
+			a.breakCount++
+
+			if a.breakCount < 5 {
+				return
+			} else {
+				a.breakCount = 0
+				a.isDoBreak = false
+			}
+		}
+
+		am, err = a.Func()
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		if am == nil {
+			a.isDoBreak = false
+		} else {
+			alertCh <- am
+			a.isDoBreak = true
+		}
 	}
 
 }
