@@ -25,7 +25,7 @@ func init() {
 
 func runtimer(r *Runner) {
 	go r.do1MinuteAction()
-	go handlerError()
+	go handler()
 }
 
 // Runner moniter
@@ -112,14 +112,18 @@ func (a *Runner) do1MinuteAction() {
 	}
 }
 
-func handlerError() {
+func handler() {
 	for {
 		select {
 		case a := <-alertCh:
-			gos.Log.Info("email:", a.TitleString())
-			err := email.SendPlainEmail(a.TitleString(), a.Message)
-			if err != nil {
-				gos.DoError(err)
+			if a.Title == "alert test" {
+				gos.Log.Info("Alert Test")
+			} else {
+				gos.Log.Info("email:", a.TitleString())
+				err := email.SendPlainEmail(a.TitleString(), a.Message)
+				if err != nil {
+					gos.DoError(err)
+				}
 			}
 		case err := <-errCh:
 			gos.DoError(err)

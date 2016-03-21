@@ -38,6 +38,5 @@ func SendEmail(title string, body []byte, mailType string) error {
 		}
 	}
 
-	gos.Log.Info("Send Email", title)
 	return client.Send(to, title, body, mailType)
 }
