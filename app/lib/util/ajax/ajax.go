@@ -52,6 +52,9 @@ func (a *Ajax) PreparePageCookie() error {
 func (a *Ajax) Get(url string) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
+	if req == nil {
+		return nil, fmt.Errorf("failed get url:%s", url)
+	}
 	req.Header.Add("User-Agent", userAgent)
 	if a.cookies != nil {
 		req.AddCookie(a.cookies)
