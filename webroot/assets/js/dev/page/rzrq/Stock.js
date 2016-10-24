@@ -28,14 +28,14 @@ require(
 			{targetId: 'chartRzjmeBar', method: 'barChart', type: 'rzjme', opt:{title:'融资净买额',baseNum : 10000}},
 			{targetId: 'chartRzjmeLine', method: 'lineChart', type: 'rzjme', opt:{title:'融资净买额',baseNum : 10000}},
 
-			{targetId: 'chartRqylBar', method: 'barChart', type: 'rqyl', opt:{title:'融券余量',baseNum : 10000}},
-			{targetId: 'chartRqylLine', method: 'lineChart', type: 'rqyl', opt:{title:'融券余量',baseNum : 10000}},
+			{targetId: 'chartRqylBar', method: 'barChart', type: 'rqyl', opt:{title:'融券余量', color: '#FF7700', baseNum : 10000}},
+			{targetId: 'chartRqylLine', method: 'lineChart', type: 'rqyl', opt:{title:'融券余量', color: '#FF7700', baseNum : 10000}},
 
-			{targetId: 'chartRqmclBar', method: 'barChart', type: 'rqmcl', opt:{title:'融券卖出量',baseNum : 10000}},
-			{targetId: 'chartRqmclLine', method: 'lineChart', type: 'rqmcl', opt:{title:'融券卖出量',baseNum : 10000}},
+			{targetId: 'chartRqmclBar', method: 'barChart', type: 'rqmcl', opt:{title:'融券卖出量', color: '#FF7700', baseNum : 10000}},
+			{targetId: 'chartRqmclLine', method: 'lineChart', type: 'rqmcl', opt:{title:'融券卖出量', color: '#FF7700', baseNum : 10000}},
 
-			{targetId: 'chartRqchlBar', method: 'barChart', type: 'rqchl', opt:{title:'融券偿还量',baseNum : 10000}},
-			{targetId: 'chartRqchlLine', method: 'lineChart', type: 'rqchl', opt:{title:'融券偿还量',baseNum : 10000}}
+			{targetId: 'chartRqchlBar', method: 'barChart', type: 'rqchl', opt:{title:'融券偿还量', color: '#FF7700', baseNum : 10000}},
+			{targetId: 'chartRqchlLine', method: 'lineChart', type: 'rqchl', opt:{title:'融券偿还量', color: '#FF7700', baseNum : 10000}}
 		];
 
 		function prepareChart(){
