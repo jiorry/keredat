@@ -27,8 +27,10 @@ type ExcelRow struct {
 	PE float64 `name:"动态市盈率" sheet1:"11" sheet2:"11" sheet3:"11" type:"float"`
 	SV string  `name:"流通市值" sheet1:"12" sheet2:"12" sheet3:"12"`
 
-	Open float64 `name:"开盘价" sheet1:"13" sheet2:"13" sheet3:"13" `
-	Date string  `name:"价格时间" sheet1:"14" sheet2:"14" sheet3:"14" `
+	Open  float64 `name:"开盘价" sheet1:"13" sheet2:"13" sheet3:"13" type:"float"`
+	Date  string  `name:"价格时间" sheet1:"14" sheet2:"14" sheet3:"14"`
+	YYYGp float64 `name:"业绩预告变动%" sheet1:"15" sheet2:"15" sheet3:"15" type:"float"`
+	YYYG  string  `name:"业绩预告" sheet1:"16" sheet2:"16" sheet3:"16"`
 }
 
 func (e ExcelRow) WgetStockData() ExcelRow {

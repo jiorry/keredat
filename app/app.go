@@ -14,6 +14,7 @@ func main() {
 	gos.Init()
 
 	gos.Route("/", &home.Default{})
+	gos.Route("/data", &home.Data{})
 	gos.Route("/login", &user.Login{})
 	gos.Route("/regist", &user.Regist{})
 

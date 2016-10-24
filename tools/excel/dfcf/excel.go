@@ -28,6 +28,7 @@ func main() {
 		if math.IsNaN(item.RateE) || item.RateENow < rateLimit || item.RateE < rateLimit {
 			continue
 		}
+
 		item = item.WgetStockData()
 		itemsEPS = append(itemsEPS, item)
 	}
@@ -45,6 +46,7 @@ func main() {
 		if math.IsNaN(item.RateR) || item.RateRNow < rateLimit || item.RateR < rateLimit {
 			continue
 		}
+
 		item = item.WgetStockData()
 		itemsROE = append(itemsROE, item)
 	}

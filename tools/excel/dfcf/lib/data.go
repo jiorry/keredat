@@ -113,6 +113,9 @@ func ReadExcel() ([]ExcelRow, error) {
 			item.SV = fmt.Sprintf("%.2f亿", sv/100000000)
 		}
 
+		item.YYYG, _ = row.Cells[13].String()
+		item.YYYGp, _ = row.Cells[14].Float()
+
 		result = append(result, item)
 	}
 
