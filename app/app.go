@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+
 	"github.com/jiorry/keredat/app/api"
 	"github.com/jiorry/keredat/app/lib/runner"
 	"github.com/jiorry/keredat/app/page/home"
@@ -11,6 +13,7 @@ import (
 )
 
 func main() {
+	flag.Parse()
 	gos.Init()
 
 	gos.Route("/", &home.Default{})
