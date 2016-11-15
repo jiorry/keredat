@@ -12,8 +12,16 @@ import (
 	_ "github.com/lib/pq"
 )
 
+var (
+	flagConf = flag.String("conf", "app/app.conf", "app/app.conf")
+)
+
 func main() {
 	flag.Parse()
+	if len(*flagConf) > 0 {
+		gos.ConfName = *flagConf
+	}
+
 	gos.Init()
 
 	gos.Route("/", &home.Default{})
