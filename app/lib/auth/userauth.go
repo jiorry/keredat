@@ -45,7 +45,7 @@ func (a *UserAuth) Query(nick string) db.DataRow {
 
 func (a *UserAuth) ClearCache() {
 	a.ClearCacheByKeys([]string{"nick"}, []interface{}{a.User().GetString("nick")})
-	db.NewQueryBuilder(a.GetOptions().Table).Where("id=?", a.UserId()).ClearCache()
+	db.NewQueryBuilder(a.GetOptions().Table).Where("id=?", a.UserID()).ClearCache()
 }
 
 // func (a *UserAuth) CookieLang() string {
